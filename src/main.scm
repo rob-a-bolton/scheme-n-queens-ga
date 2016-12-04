@@ -14,7 +14,7 @@
   (string-join
     `(,(format #f "Usage: ~a [OPTS]" program-name)
        ""
-       " Where OPTS are one are more of:"
+       " Where OPTS are one or more of:"
        "  -v, --version        Prints program version."
        "  -h, --help           Prints this help."
        "  -n, --n-queens   n   Problem size (number of queens). [REQUIRED]")
