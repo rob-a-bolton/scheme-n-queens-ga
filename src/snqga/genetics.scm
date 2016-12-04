@@ -11,16 +11,18 @@
 			 genes
 			 (cons gene genes)))))))
 
-(define (fitness chromosome n)
-  (let ((can-take (λ (g1 g2)
+(define (fitness chromosome)
+  (let* ((can-take (λ (g1 g2)
 		    (and (not (eq? g1 g2))
 			 (or (eq? (car g1) (car g2))
 			     (eq? (cdr g1) (cdr g2))
 			     (eq? (abs (- (car g1) (car g2)))
-				  (abs (- (cdr g1) (cdr g2)))))))))
+				  (abs (- (cdr g1) (cdr g2))))))))
+	 (n (- (length chromosome) 1))
+	 (max-fitness (/ (+ (* n n) n) 2)))
     (let fit-cdr ((takes 0) (genes chromosome))
       (if (= (length genes) 1)
-	  takes
+	  (- max-fitness takes)
 	  (fit-cdr (+ takes
 		      (fold + 0 (map
 				 (λ (g)
