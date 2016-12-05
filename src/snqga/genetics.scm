@@ -32,6 +32,30 @@
 				     genes)))
 		   (cdr genes))))))
 
+(define (select chromosomes)
+  (let* ((fitness-pairs (map (λ (chromosome)
+			       (cons (fitness chromosome) chromosome))
+			     chromosomes))
+	 (total-fitness (fold (λ (pair total)
+				(+ total (car pair)))
+			      0
+			      fitness-pairs))
+	 (normalised-pairs
+	  (sort (map (λ (pair)
+		       (cons (/ (car pair) total-fitness) (cdr pair)))
+		     fitness-pairs)
+		(λ (pair1 pair2)
+		  (> (car pair1) (car pair2)))))
+	 (r (random:uniform)))
+    (let take-more ((taken '())
+		    (remaining normalised-pairs)
+		    (total 0))
+      (if (> total r)
+	  taken
+	  (take-more (cons (cdar remaining) taken)
+		     (cdr remaining)
+		     (+ total (caar remaining)))))))
+
 (define (chromosome->board chromosome)
   (let* ((n (length chromosome))
 	 (board-strs (map (λ (chr) (make-string n chr))
