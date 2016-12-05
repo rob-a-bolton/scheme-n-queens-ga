@@ -3,6 +3,7 @@
 (use-modules (srfi srfi-1))
 
 (define (make-chromosome n)
+  "Creates a random n-length chromosome. Genes are (x . y) pairs"
   (let make-gene ((genes '()))
     (if (= (length genes) n)
 	genes
@@ -12,6 +13,8 @@
 			 (cons gene genes)))))))
 
 (define (fitness chromosome)
+  "Calculates the fitness of a chromosome. Fitness is [0,t], where
+   t is the maximum possible takes a piece can have (n-triangle of n)"
   (let* ((can-take (λ (g1 g2)
 		    (and (not (eq? g1 g2))
 			 (or (eq? (car g1) (car g2))
@@ -33,6 +36,7 @@
 		   (cdr genes))))))
 
 (define (select chromosomes)
+  "Selects some of the fittest chromosomes."
   (let* ((fitness-pairs (map (λ (chromosome)
 			       (cons (fitness chromosome) chromosome))
 			     chromosomes))
@@ -57,6 +61,7 @@
 		     (+ total (caar remaining)))))))
 
 (define (chromosome->board chromosome)
+  "Creates a printable string representation of a chromosome as a chess board."
   (let* ((n (length chromosome))
 	 (board-strs (map (λ (chr) (make-string n chr))
 			  (make-list n #\.))))
