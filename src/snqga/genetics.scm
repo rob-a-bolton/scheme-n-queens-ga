@@ -77,6 +77,15 @@
 	  (list-set! chromosome index new-gene)
 	  chromosome))))
 
+(define (crossover c1 c2)
+  "Combines two chromosomes."
+  (let* ((position (random (- (length c1) 1)))
+	 (g1 (append (list-head c1 position)
+		     (list-tail c2 position)))
+	 (g2 (append (list-head c2 position)
+		     (list-tail c1 position))))
+    (values g1 g2)))
+
 (define (chromosome->board chromosome)
   "Creates a printable string representation of a chromosome as a chess board."
   (let* ((n (length chromosome))
