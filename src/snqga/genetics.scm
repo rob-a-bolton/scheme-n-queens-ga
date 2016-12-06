@@ -2,9 +2,7 @@
 
 (use-modules (snqga chromosomes)
 	     (snqga mutation)
-	     (snqga crossover)
-	     (srfi srfi-1)
-	     (srfi srfi-11))
+	     (snqga crossover))
 
 (define (select chromosomes)
   "Splits a space of chromosomes in two."
