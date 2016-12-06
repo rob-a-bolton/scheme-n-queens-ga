@@ -13,6 +13,11 @@
 			 genes
 			 (cons gene genes)))))))
 
+(define (max-fitness n)
+  "Calculates the maximum fitness value for a chromosome of size n"
+  (let ((N (- n 1)))
+    (/ (+ (* N N) N) 2)))
+
 (define (fitness chromosome)
   "Calculates the fitness of a chromosome. Fitness is [0,t], where
    t is the maximum possible takes a piece can have (n-triangle of n)"
@@ -22,11 +27,10 @@
 			     (eq? (cdr g1) (cdr g2))
 			     (eq? (abs (- (car g1) (car g2)))
 				  (abs (- (cdr g1) (cdr g2))))))))
-	 (n (- (length chromosome) 1))
-	 (max-fitness (/ (+ (* n n) n) 2)))
+	 (max-f (max-fitness (length chromosome))))
     (let fit-cdr ((takes 0) (genes chromosome))
       (if (= (length genes) 1)
-	  (- max-fitness takes)
+	  (- max-f takes)
 	  (fit-cdr (+ takes
 		      (fold + 0 (map
 				 (λ (g)
@@ -111,6 +115,27 @@
 		 (mutate chromosome)
 		 chromosome))
 	   combined)))
+
+(define (get-winner generation)
+  (let* ((fitness-pairs (map (λ (c) (cons (fitness c) c))
+			     generation))
+	 (max-f (max-fitness (length (car generation)))))
+    (find (λ (f-pair)
+	    (= max-f (car f-pair)))
+	  fitness-pairs)))
+
+(define (solve-problem n generation-size max-generations)
+  (let solve ((generation (make-generation generation-size n))
+	      (generations 1))
+    (let ((winner (get-winner generation)))
+      (cond
+       (winner
+	winner)
+       ((= generations max-generations)
+	#f)
+       (else
+	(solve (run-generation generation 0.5 0.1)
+	       (1+ generations)))))))
 
 (define (make-generation size n)
   (map make-chromosome (make-list size n)))
