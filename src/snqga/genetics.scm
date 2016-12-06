@@ -1,6 +1,7 @@
 (define-module (snqga genetics))
 
-(use-modules (srfi srfi-1))
+(use-modules (srfi srfi-1)
+	     (srfi srfi-11))
 
 (define (make-chromosome n)
   "Creates a random n-length chromosome. Genes are (x . y) pairs"
@@ -66,16 +67,16 @@
       (cons (random n) (cdr gene))
       (cons (car gene) (random n))))
 
-(define (mutate! chromosome)
+(define (mutate chromosome)
   "Mutates a chromosome."
   (let* ((index (random (length chromosome)))
 	 (gene (list-ref chromosome index))
 	 (new-gene (mutate-gene gene (length chromosome))))
     (if (member new-gene chromosome)
 	(mutate chromosome)
-	(begin
-	  (list-set! chromosome index new-gene)
-	  chromosome))))
+	(append (list-head chromosome index)
+		(list new-gene)
+		(list-tail chromosome (1+ index))))))
 
 (define (crossover c1 c2)
   "Combines two chromosomes."
