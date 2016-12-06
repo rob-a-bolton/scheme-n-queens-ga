@@ -37,7 +37,7 @@
 		   (cdr genes))))))
 
 (define (select chromosomes)
-  "Selects some of the fittest chromosomes."
+  "Splits a space of chromosomes in two."
   (let* ((fitness-pairs (map (λ (chromosome)
 			       (cons (fitness chromosome) chromosome))
 			     chromosomes))
@@ -56,7 +56,7 @@
 		    (remaining normalised-pairs)
 		    (total 0))
       (if (> total r)
-	  taken
+	  (values taken (map cdr remaining))
 	  (take-more (cons (cdar remaining) taken)
 		     (cdr remaining)
 		     (+ total (caar remaining)))))))
@@ -86,6 +86,34 @@
 	 (g2 (append (list-head c2 position)
 		     (list-tail c1 position))))
     (values g1 g2)))
+
+(define (crossover-generation gen chance)
+  (let cross-cdr ((processed '())
+		  (remaining gen))
+    (cond
+     ((null? remaining)
+      processed)
+     ((null? (cdr remaining))
+      (cons (car remaining) processed))
+     (else
+      (let-values (((c1 c2) (if (< (random:uniform) chance)
+				(crossover (car remaining) (cadr remaining))
+				(values (car remaining) (cadr remaining)))))
+	(cross-cdr (cons c1 (cons c2 processed))
+		   (cddr remaining)))))))
+
+(define (run-generation generation crossover-chance mutation-chance)
+  (let*-values (((selected rest) (select generation))
+		((crossed-over) (crossover-generation selected crossover-chance))
+		((combined) (append crossed-over rest)))
+      (map (λ (chromosome)
+	     (if (< (random:uniform) mutation-chance)
+		 (mutate chromosome)
+		 chromosome))
+	   combined)))
+
+(define (make-generation size n)
+  (map make-chromosome (make-list size n)))
 
 (define (chromosome->board chromosome)
   "Creates a printable string representation of a chromosome as a chess board."
