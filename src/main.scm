@@ -31,6 +31,7 @@
        "  -M, --mutation-chance    [n 0.1]  Chance of mutation per chromosome."
        "  -s, --selection-function name	    Selection function to use."
        "  -c, --crossover-function name	    Crossover function to use."
+       "  -P, --parsable	   	    Outputs one line only."
        ""
        " The following selection method-specific options are available:"
        "  --tournament-size [n 2] Sets the number of chromosomes considered in"
@@ -72,6 +73,7 @@
 	     (mutation-chance (single-char #\M) (value #t))
 	     (selection-function (single-char #\s) (value #t))
 	     (crossover-function (single-char #\c) (value #t))
+	     (parsable (single-char #\P) (value #f))
 	     (tournament-size (value #t))))
          (opts (getopt-long args opts-spec))
          (version-wanted?
@@ -96,6 +98,8 @@
 	   (string->symbol (option-ref opts 'selection-function "roulette")))
 	 (crossover-function
 	   (string->symbol (option-ref opts 'crossover-function "single")))
+	 (parsable?
+	   (option-ref opts 'parsable #f))
 	 (tournament-size
 	   (string->number (option-ref opts 'tournament-size "2")))
 	 (selection-config `((tournament-size . ,tournament-size))))
@@ -135,10 +139,20 @@
 	      (time-taken (time-difference end-time start-time)))
 	 (if solution
 	     (begin
-	       (format #t "~a, ~a generations:~%~a~%"
+	       (if parsable?
+		   (format #t "~a.~a\t~a\t~a\t~a\t~a\t~a\t~a\t~a~%"
+			   (time-second time-taken)
+			   (time-nanosecond time-taken)
+			   n-queens
+			   (cdr solution)
+			   generation-size
+			   selection-function
+			   crossover-function
+			   parent-ratio
+			   mutation-chance)
+		   (format #t "~a, ~a generations:~%~a~%"
 		       (time-str time-taken)
 		       (cdr solution)
-		       (chromosome->board (cdar solution)))
-	       (newline))
+		       (chromosome->board (cdar solution)))))
 	     (exit-with-error "Could not find a solution.")))))))
 
