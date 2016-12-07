@@ -26,7 +26,7 @@
        "  -C, --list-crossovers		    List available crossover functions."
        "  -n, --n-queens           n        Problem size (number of queens). [REQUIRED]"
        "  -g, --generation-size    [n 10]   Number of chromosomes in generation."
-       "  -m, --max-generations    [n 1000] Maximum number of generations to try."
+       "  -m, --max-generations    n        Maximum number of generations to try."
        "  -p, --parent-ratio	   [n 0.4]  Ratio of chromosomes to become parents."
        "  -M, --mutation-chance    [n 0.1]  Chance of mutation per chromosome."
        "  -s, --selection-function name	    Selection function to use."
@@ -87,7 +87,7 @@
 	 (generation-size
 	   (string->number (option-ref opts 'generation-size "20")))
 	 (max-generations
-	   (string->number (option-ref opts 'max-generations "1000")))
+	   (maybe-string->number (option-ref opts 'max-generations #f)))
 	 (parent-ratio
 	   (string->number (option-ref opts 'parent-ratio "0.4")))
 	 (mutation-chance

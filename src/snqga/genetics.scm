@@ -13,7 +13,7 @@
 			parent-ratio
 			mutation-chance)
   "Runs over a single generation. Performs selection, crossover, and mutation."
-  (let* ((parents (selection-function generation (floor (/ (length generation) parent-ratio))))
+  (let* ((parents (selection-function generation (floor (* (length generation) parent-ratio))))
 	 (crossed-over (map-crossover parents crossover-function))
 	 (combined (append crossed-over generation)))
     (selection-function
@@ -38,7 +38,7 @@
       (cond
        (winner
 	(cons winner generations))
-       ((= generations max-generations)
+       ((and max-generations (= generations max-generations))
 	#f)
        (else
 	(solve (run-generation generation
