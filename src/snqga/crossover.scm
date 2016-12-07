@@ -1,6 +1,8 @@
 (define-module (snqga crossover))
 
 (use-modules (snqga chromosomes)
+	     (snqga util)
+	     (srfi srfi-1)
 	     (srfi srfi-11))
 
 (define (map-crossover chromosomes crossover-func)
@@ -14,13 +16,13 @@
      ((null? (cdr remaining))
       (cons (car remaining) processed))
      (else
-      (let-values (((child1 child2) (crossover (car remaining) (cadr remaining)))
-		   ((c1 c2) (if (or (not (is-valid? child1))
-				    (not (is-valid? child2)))
-				(values c1 c2)
-				(values child1 child2))))
-	(cross-cdr (cons c1 (cons c2 processed))
+      (let-values (((child-1 child-2) (crossover-func (car remaining) (cadr remaining))))
+	(cross-cdr (if (or (not (is-valid? child-1))
+			   (not (is-valid? child-2)))
+		       processed
+		       (cons child-1 (cons child-2 processed)))
 		   (cddr remaining)))))))
+
 (define (co-single c1 c2)
   "Combines two chromosomes by splitting them both in two and swapping halves."
   (let* ((position (random (1- (length c1))))
@@ -46,4 +48,8 @@
   `((single . ,co-single)
     (two-point . ,co-two-point)))
 
-(export map-crossover crossover-funcs)
+(define (get-crossover-func name)
+  "Looks up and returns a crossover function by name"
+  (alist-get crossover-funcs name))
+
+(export map-crossover crossover-funcs get-crossover-func)
