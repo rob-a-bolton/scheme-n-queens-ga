@@ -6,7 +6,7 @@
 
 (define (roulette config)
   "Roulette selection of chromosomes"
-  (lambda (chromosomes selection-size)    
+  (λ (chromosomes selection-size)    
     (let* ((fitness-pairs (map (λ (chromosome)
 				 (cons (fitness chromosome) chromosome))
 			       chromosomes))
@@ -23,13 +23,7 @@
       (let take-more ((survivors '())
 		      (num-survivors 1))
 	(let* ((r (random:uniform))
-	       (individual
-		(let select-individual ((rest normalised-pairs)
-					(total (caar normalised-pairs)))
-		  (if (> total r)
-		      (cdar rest)
-		      (select-individual (cdr rest)
-					 (+ total (caadr normalised-pairs)))))))
+	       (individual (choose-normalised normalised-pairs)))
 	  (if (= num-survivors selection-size)
 	      (cons individual survivors)
 	      (take-more (cons individual survivors)
@@ -56,7 +50,7 @@
 		   (map (λ (c)
 			  (cons (fitness c) c))
 			(take-candidates chromosomes '() 0)))))
-    (lambda (chromosomes selection-size)
+    (λ (chromosomes selection-size)
       (let choose-more ((chosen '())
 			(num-chosen 0))
 	(if (= num-chosen selection-size)
@@ -65,9 +59,37 @@
 			       chosen)
 			 (1+ num-chosen)))))))
 
+(define (rank config)
+  "Ranked generator. Sorts by fitness, assignes a sequential rank to each, then
+   uses the rank as the weight rather than the fitness."
+  (λ (chromosomes selection-size)
+    (let* ((fitness-pairs (reverse (map-sort-fit chromosomes)))
+	   (total-rank (n-triangle (length fitness-pairs)))
+	   (ranked (let rank-cdr ((ranked '())
+				  (rest fitness-pairs)
+				  (count 1))
+		     (if (null? rest)
+			 ranked
+			 (rank-cdr (cons (cons (/ count total-rank) (cdar rest)) ranked)
+				   (cdr rest)
+				   (1+ count))))))
+      (let choose-more ((chosen '())
+			(num-chosen 0))
+	(if (= num-chosen selection-size)
+	    chosen
+	    (cons (choose-normalised ranked) chosen))))))
+
+(define (truncate config)
+  "Truncation generator. Sorts by fitness and takes the most fit."
+  (λ (chromosomes selection-size)
+    (let ((fitness-pairs (map-sort-fit chromosomes)))
+      (map cdr (list-head fitness-pairs selection-size)))))
+
 (define selection-funcs
   `((roulette . ,roulette)
-    (tournament . ,tournament)))
+    (tournament . ,tournament)
+    (rank . ,rank)
+    (truncate . ,truncate)))
 
 (define (generate-selector name config)
   "Looks up and returns a selection function by name."

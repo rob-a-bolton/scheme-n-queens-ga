@@ -1,6 +1,7 @@
 (define-module (snqga chromosomes))
 
-(use-modules (srfi srfi-1))
+(use-modules (srfi srfi-1)
+	     (snqga util))
 
 (define (make-chromosome n)
   "Creates a random n-length chromosome. Genes are (x . y) pairs"
@@ -39,8 +40,7 @@
 
 (define (max-fitness n)
   "Calculates the maximum fitness value for a chromosome of size n"
-  (let ((N (- n 1)))
-    (/ (+ (* N N) N) 2)))
+  (n-triangle (- n 1)))
 
 (define (fitness chromosome)
   "Calculates the fitness of a chromosome. Fitness is [0,t], where
@@ -64,4 +64,16 @@
 				     genes)))
 		   (cdr genes))))))
 
-(export make-chromosome is-valid? chromosome->board max-fitness fitness)
+(define (map-sort-fit chromosomes)
+  (sort (map (λ (chromosome)
+	       (cons (fitness chromosome) chromosome))
+	     chromosomes)
+	(λ (pair-1 pair-2)
+	  (> (car pair-1) (car pair-2)))))
+
+(export make-chromosome
+	is-valid?
+	chromosome->board
+	max-fitness
+	fitness
+	map-sort-fit)

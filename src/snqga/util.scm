@@ -16,4 +16,18 @@
   (format #f "~ss, ~sns" (time-second time)
 	     	   	 (time-nanosecond time)))
 
-(export alist-get time-str)
+(define (n-triangle n)
+  "Triangle number calculation."
+  (/ (+ (* n n) n) 2))
+
+(define (choose-normalised normalised-list)
+  "Chooses a random element from a sorted normalised weighted list"
+  (let ((r (random:uniform)))
+    (let select-individual ((rest normalised-list)
+			    (total (caar normalised-list)))
+      (if (> total r)
+	  (cdar rest)
+	  (select-individual (cdr rest)
+			     (+ total (caadr normalised-list)))))))
+
+(export alist-get time-str n-triangle choose-normalised)
